@@ -10,7 +10,6 @@ export function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0
   let volumeCredits = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
-
   const format = new Intl.NumberFormat('en-us', {
     style: 'currency',
     currency: 'USD',
@@ -46,14 +45,19 @@ export function statement(invoice: Invoice, plays: Plays) {
     return result
   }
 
-  for (let perf of invoice.performances) {
-    // 포인트를 적립한다.
-    volumeCredits += Math.max(perf.audience - 30, 0)
+  function volumeCreditsFor(performance: Performance) {
+    let result = 0
+    result += Math.max(performance.audience - 30, 0)
 
-    // 희극 관객 5명마다 추가 포인트를 제공한다.
-    if ('comedy' === playFor(perf).type) {
-      volumeCredits += Math.floor(perf.audience / 5)
+    if ('comedy' === playFor(performance).type) {
+      result += Math.floor(performance.audience / 5)
     }
+
+    return result
+  }
+
+  for (let perf of invoice.performances) {
+    volumeCredits += volumeCreditsFor(perf)
 
     // 청구 내역을 출력한다.
     result += `  ${playFor(perf).name}: ${format(amountFor(perf) / 100)} (${perf.audience }석)\n` // prettier-ignore
