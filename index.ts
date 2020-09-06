@@ -37,27 +37,27 @@ export function statement(invoice: Invoice, plays: Plays) {
   return result
 }
 
-function amountFor(perf: Performance, play: Play) {
-  let thisAmount = 0
+function amountFor(performance: Performance, play: Play) {
+  let result = 0
   switch (play.type) {
     case 'tragedy':
-      thisAmount = 40000
-      if (perf.audience > 30) {
-        thisAmount += 1000 * (perf.audience - 30)
+      result = 40000
+      if (performance.audience > 30) {
+        result += 1000 * (performance.audience - 30)
       }
       break
 
     case 'comedy':
-      thisAmount = 30000
-      if (perf.audience > 20) {
-        thisAmount += 10000 + 500 * (perf.audience - 20)
+      result = 30000
+      if (performance.audience > 20) {
+        result += 10000 + 500 * (performance.audience - 20)
       }
-      thisAmount += 300 * perf.audience
+      result += 300 * performance.audience
       break
 
     default:
       throw new Error(`알 수 없는 장르: ${play.type}`)
   }
 
-  return thisAmount
+  return result
 }
