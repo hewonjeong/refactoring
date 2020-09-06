@@ -1,5 +1,6 @@
 import {
   Invoice,
+  Play,
   Plays,
   Performance,
   PerformanceData,
@@ -18,8 +19,12 @@ export default function createStatementData(
   return result
 
   function enrichPerformance(performance: Performance) {
+    const calculator = new PerformanceCalculator(
+      performance,
+      playFor(performance)
+    )
     const result = Object.assign({} as PerformanceData, performance)
-    result.play = playFor(result)
+    result.play = calculator.play
     result.amount = amountFor(result)
     result.volumeCredits = volumeCreditsFor(result)
     return result
@@ -70,5 +75,15 @@ export default function createStatementData(
     }
 
     return result
+  }
+}
+
+class PerformanceCalculator {
+  performance: Performance
+  play: Play
+
+  constructor(performance: Performance, play: Play) {
+    this.performance = performance
+    this.play = play
   }
 }
