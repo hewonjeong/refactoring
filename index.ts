@@ -14,12 +14,16 @@ type PerformanceData = Performance & {
 type Data = {
   customer: string
   performances: PerformanceData[]
+  totalAmount: number
+  totalVolumeCredits: number
 }
 
 export function statement(invoice: Invoice, plays: Plays) {
   const statementData: any = {}
   statementData.customer = invoice.customer
   statementData.performances = invoice.performances.map(enrichPerformance)
+  statementData.totalAmount = totalAmount(statementData)
+  statementData.totalVolumeCredits = totalVolumeCredits(statementData)
   return renderPlainText(statementData)
 
   function enrichPerformance(performance: Performance) {
@@ -58,6 +62,22 @@ export function statement(invoice: Invoice, plays: Plays) {
     return result
   }
 
+  function totalAmount(data: Data) {
+    let result = 0
+    for (let perf of data.performances) {
+      result += perf.amount
+    }
+    return result
+  }
+
+  function totalVolumeCredits(data: Data) {
+    let result = 0
+    for (let perf of data.performances) {
+      result += perf.volumeCredits
+    }
+    return result
+  }
+
   function volumeCreditsFor(performance: PerformanceData) {
     let result = 0
     result += Math.max(performance.audience - 30, 0)
@@ -76,26 +96,10 @@ function renderPlainText(data: Data) {
     result += `  ${perf.play.name}: ${usd(perf.amount)} (${perf.audience}석)\n` // prettier-ignore
   }
 
-  result += `총액: ${usd(totalAmount())}\n`
-  result += `적립 포인트: ${totalVolumeCredits()}점\n`
+  result += `총액: ${usd(data.totalAmount)}\n`
+  result += `적립 포인트: ${data.totalVolumeCredits}점\n`
 
   return result
-
-  function totalAmount() {
-    let result = 0
-    for (let perf of data.performances) {
-      result += perf.amount
-    }
-    return result
-  }
-
-  function totalVolumeCredits() {
-    let result = 0
-    for (let perf of data.performances) {
-      result += perf.volumeCredits
-    }
-    return result
-  }
 
   function usd(number: number) {
     return new Intl.NumberFormat('en-us', {
