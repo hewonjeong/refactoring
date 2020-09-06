@@ -55,6 +55,14 @@ export function statement(invoice: Invoice, plays: Plays) {
     return result
   }
 
+  function totalVolumeCredits() {
+    let volumeCredits = 0
+    for (let perf of invoice.performances) {
+      volumeCredits += volumeCreditsFor(perf)
+    }
+    return volumeCredits
+  }
+
   let totalAmount = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
   for (let perf of invoice.performances) {
@@ -63,12 +71,7 @@ export function statement(invoice: Invoice, plays: Plays) {
     totalAmount += amountFor(perf)
   }
 
-  let volumeCredits = 0
-  for (let perf of invoice.performances) {
-    volumeCredits += volumeCreditsFor(perf)
-  }
-
   result += `총액: ${usd(totalAmount)}\n`
-  result += `적립 포인트: ${volumeCredits}점\n`
+  result += `적립 포인트: ${totalVolumeCredits()}점\n`
   return result
 }
