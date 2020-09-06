@@ -5,7 +5,7 @@ import {
   Performance,
   PerformanceData,
   StatementData,
-} from '../types'
+} from './types'
 
 export default function createStatementData(
   invoice: Invoice,
@@ -19,15 +19,11 @@ export default function createStatementData(
   return result
 
   function enrichPerformance(performance: Performance) {
-    const result = Object.assign({} as PerformanceData, performance)
-    const calculator = createPerformanceCalculator(
+    const { play, amount, volumeCredits } = createPerformanceCalculator(
       performance,
       playFor(performance)
     )
-    result.play = calculator.play
-    result.amount = calculator.amount
-    result.volumeCredits = calculator.volumeCredits
-    return result
+    return { ...performance, play, amount, volumeCredits }
   }
 
   function playFor(performance: Performance) {

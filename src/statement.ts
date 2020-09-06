@@ -1,5 +1,5 @@
 import createStatementData from './createStatementData'
-import { Invoice, Plays, StatementData } from '../types'
+import { Invoice, Plays, StatementData } from './types'
 
 export function statement(invoice: Invoice, plays: Plays) {
   return renderPlainText(createStatementData(invoice, plays))
@@ -8,9 +8,7 @@ export function statement(invoice: Invoice, plays: Plays) {
 function renderPlainText(data: StatementData) {
   let result = `Statement for ${data.customer}\n`
   for (let perf of data.performances) {
-    result += `  ${perf.play.name}: ${usd(perf.amount)} (${
-      perf.audience
-    } seats)\n`
+    result += `  ${perf.play.name}: ${usd(perf.amount)} (${perf.audience} seats)\n` // prettier-ignore
   }
 
   result += `Amount owed is ${usd(data.totalAmount)}\n`
