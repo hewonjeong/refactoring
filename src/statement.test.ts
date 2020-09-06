@@ -1,6 +1,7 @@
-import { statement } from '.'
+import statement from './statement'
 import invoices from './invoices.json'
 import plays from './plays.json'
+
 describe('statement', () => {
   it('returns output of statement', () => {
     const expected = `청구 내역 (고객명: BigCo)
