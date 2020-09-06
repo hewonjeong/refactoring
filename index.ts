@@ -11,12 +11,12 @@ export function statement(invoice: Invoice, plays: Plays) {
   let volumeCredits = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
 
-  function format(number: number) {
+  function usd(number: number) {
     return new Intl.NumberFormat('en-us', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
-    }).format(number)
+    }).format(number / 100)
   }
 
   function playFor(performance: Performance) {
@@ -63,11 +63,11 @@ export function statement(invoice: Invoice, plays: Plays) {
     volumeCredits += volumeCreditsFor(perf)
 
     // 청구 내역을 출력한다.
-    result += `  ${playFor(perf).name}: ${format(amountFor(perf) / 100)} (${perf.audience }석)\n` // prettier-ignore
+    result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience }석)\n` // prettier-ignore
     totalAmount += amountFor(perf)
   }
 
-  result += `총액: ${format(totalAmount / 100)}\n`
+  result += `총액: ${usd(totalAmount)}\n`
   result += `적립 포인트: ${volumeCredits}점\n`
   return result
 }
