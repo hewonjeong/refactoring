@@ -7,10 +7,6 @@ type Play = { name: string; type: string }
 type Plays = Record<string, Play>
 
 export function statement(invoice: Invoice, plays: Plays) {
-  let totalAmount = 0
-  let volumeCredits = 0
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`
-
   function usd(number: number) {
     return new Intl.NumberFormat('en-us', {
       style: 'currency',
@@ -59,12 +55,15 @@ export function statement(invoice: Invoice, plays: Plays) {
     return result
   }
 
+  let totalAmount = 0
+  let result = `청구 내역 (고객명: ${invoice.customer})\n`
   for (let perf of invoice.performances) {
     // 청구 내역을 출력한다.
     result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience }석)\n` // prettier-ignore
     totalAmount += amountFor(perf)
   }
 
+  let volumeCredits = 0
   for (let perf of invoice.performances) {
     volumeCredits += volumeCreditsFor(perf)
   }
