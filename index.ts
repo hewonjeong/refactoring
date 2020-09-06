@@ -7,13 +7,15 @@ type Play = { name: string; type: string }
 type Plays = Record<string, Play>
 
 export function statement(invoice: Invoice, plays: Plays) {
-  const statementData = {}
-  return renderPlainText(statementData, invoice, plays)
+  const statementData: any = {}
+  statementData.customer = invoice.customer
+  statementData.performances = invoice.performances
+  return renderPlainText(statementData, plays)
 }
 
-function renderPlainText(data: object, invoice: Invoice, plays: Plays) {
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`
-  for (let perf of invoice.performances) {
+function renderPlainText(data: any, plays: Plays) {
+  let result = `청구 내역 (고객명: ${data.customer})\n`
+  for (let perf of data.performances) {
     result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience }석)\n` // prettier-ignore
   }
 
@@ -24,7 +26,7 @@ function renderPlainText(data: object, invoice: Invoice, plays: Plays) {
 
   function totalAmount() {
     let result = 0
-    for (let perf of invoice.performances) {
+    for (let perf of data.performances) {
       result += amountFor(perf)
     }
     return result
@@ -32,7 +34,7 @@ function renderPlainText(data: object, invoice: Invoice, plays: Plays) {
 
   function totalVolumeCredits() {
     let result = 0
-    for (let perf of invoice.performances) {
+    for (let perf of data.performances) {
       result += volumeCreditsFor(perf)
     }
     return result
