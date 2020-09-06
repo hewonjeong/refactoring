@@ -10,11 +10,14 @@ export function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0
   let volumeCredits = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
-  const format = new Intl.NumberFormat('en-us', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format
+
+  function format(number: number) {
+    return new Intl.NumberFormat('en-us', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    }).format(number)
+  }
 
   function playFor(performance: Performance) {
     return plays[performance.playID]
