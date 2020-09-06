@@ -11,7 +11,7 @@ type PerformanceData = Performance & {
   amount: number
   volumeCredits: number
 }
-type Data = {
+type StatementData = {
   customer: string
   performances: PerformanceData[]
   totalAmount: number
@@ -19,12 +19,16 @@ type Data = {
 }
 
 export function statement(invoice: Invoice, plays: Plays) {
+  return renderPlainText(createStatementData(invoice, plays))
+}
+
+function createStatementData(invoice: Invoice, plays: Plays): StatementData {
   const statementData: any = {}
   statementData.customer = invoice.customer
   statementData.performances = invoice.performances.map(enrichPerformance)
   statementData.totalAmount = totalAmount(statementData)
   statementData.totalVolumeCredits = totalVolumeCredits(statementData)
-  return renderPlainText(statementData)
+  return statementData
 
   function enrichPerformance(performance: Performance) {
     const result = Object.assign({} as PerformanceData, performance)
@@ -62,11 +66,11 @@ export function statement(invoice: Invoice, plays: Plays) {
     return result
   }
 
-  function totalAmount(data: Data) {
+  function totalAmount(data: StatementData) {
     return data.performances.reduce((total, p) => total + p.amount, 0)
   }
 
-  function totalVolumeCredits(data: Data) {
+  function totalVolumeCredits(data: StatementData) {
     return data.performances.reduce((total, p) => total + p.volumeCredits, 0)
   }
 
@@ -82,7 +86,7 @@ export function statement(invoice: Invoice, plays: Plays) {
   }
 }
 
-function renderPlainText(data: Data) {
+function renderPlainText(data: StatementData) {
   let result = `청구 내역 (고객명: ${data.customer})\n`
   for (let perf of data.performances) {
     result += `  ${perf.play.name}: ${usd(perf.amount)} (${perf.audience}석)\n` // prettier-ignore
