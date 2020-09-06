@@ -44,7 +44,14 @@ export default function createStatementData(
 }
 
 function createPerformanceCalculator(performance: Performance, play: Play) {
-  return new PerformanceCalculator(performance, play)
+  switch (play.type) {
+    case 'tragedy':
+      return new TragedyCalculator(performance, play)
+    case 'comedy':
+      return new ComedyCalculator(performance, play)
+    default:
+      throw new Error(`unknown type: ${play.type}`)
+  }
 }
 
 class PerformanceCalculator {
@@ -75,7 +82,7 @@ class PerformanceCalculator {
         break
 
       default:
-        throw new Error(`알 수 없는 장르: ${this.play.type}`)
+        throw new Error(`unknown type: ${this.play.type}`)
     }
     return result
   }
@@ -91,3 +98,7 @@ class PerformanceCalculator {
     return result
   }
 }
+
+class TragedyCalculator extends PerformanceCalculator {}
+
+class ComedyCalculator extends PerformanceCalculator {}
