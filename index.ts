@@ -6,7 +6,11 @@ type Invoice = {
 type Play = { name: string; type: string }
 type Plays = Record<string, Play>
 
-type PerformanceData = Performance & { play: Play; amount: number }
+type PerformanceData = Performance & {
+  play: Play
+  amount: number
+  volumeCredits: number
+}
 type Data = {
   customer: string
   performances: PerformanceData[]
@@ -22,7 +26,12 @@ export function statement(invoice: Invoice, plays: Plays) {
     const result = Object.assign({} as PerformanceData, performance)
     result.play = playFor(result)
     result.amount = amountFor(result)
+    result.volumeCredits = volumeCreditsFor(result)
     return result
+  }
+
+  function playFor(performance: Performance) {
+    return plays[performance.playID]
   }
 
   function amountFor(performance: PerformanceData) {
@@ -49,8 +58,15 @@ export function statement(invoice: Invoice, plays: Plays) {
     return result
   }
 
-  function playFor(performance: Performance) {
-    return plays[performance.playID]
+  function volumeCreditsFor(performance: PerformanceData) {
+    let result = 0
+    result += Math.max(performance.audience - 30, 0)
+
+    if ('comedy' === performance.play.type) {
+      result += Math.floor(performance.audience / 5)
+    }
+
+    return result
   }
 }
 
@@ -76,7 +92,7 @@ function renderPlainText(data: Data) {
   function totalVolumeCredits() {
     let result = 0
     for (let perf of data.performances) {
-      result += volumeCreditsFor(perf)
+      result += perf.volumeCredits
     }
     return result
   }
@@ -87,16 +103,5 @@ function renderPlainText(data: Data) {
       currency: 'USD',
       minimumFractionDigits: 2,
     }).format(number / 100)
-  }
-
-  function volumeCreditsFor(performance: PerformanceData) {
-    let result = 0
-    result += Math.max(performance.audience - 30, 0)
-
-    if ('comedy' === performance.play.type) {
-      result += Math.floor(performance.audience / 5)
-    }
-
-    return result
   }
 }
