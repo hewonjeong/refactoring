@@ -7,12 +7,49 @@ type Play = { name: string; type: string }
 type Plays = Record<string, Play>
 
 export function statement(invoice: Invoice, plays: Plays) {
+  let result = `청구 내역 (고객명: ${invoice.customer})\n`
+  for (let perf of invoice.performances) {
+    result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience }석)\n` // prettier-ignore
+  }
+
+  result += `총액: ${usd(totalAmount())}\n`
+  result += `적립 포인트: ${totalVolumeCredits()}점\n`
+
+  return result
+
+  function totalAmount() {
+    let result = 0
+    for (let perf of invoice.performances) {
+      result += amountFor(perf)
+    }
+    return result
+  }
+
+  function totalVolumeCredits() {
+    let result = 0
+    for (let perf of invoice.performances) {
+      result += volumeCreditsFor(perf)
+    }
+    return result
+  }
+
   function usd(number: number) {
     return new Intl.NumberFormat('en-us', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
     }).format(number / 100)
+  }
+
+  function volumeCreditsFor(performance: Performance) {
+    let result = 0
+    result += Math.max(performance.audience - 30, 0)
+
+    if ('comedy' === playFor(performance).type) {
+      result += Math.floor(performance.audience / 5)
+    }
+
+    return result
   }
 
   function playFor(performance: Performance) {
@@ -43,40 +80,4 @@ export function statement(invoice: Invoice, plays: Plays) {
 
     return result
   }
-
-  function volumeCreditsFor(performance: Performance) {
-    let result = 0
-    result += Math.max(performance.audience - 30, 0)
-
-    if ('comedy' === playFor(performance).type) {
-      result += Math.floor(performance.audience / 5)
-    }
-
-    return result
-  }
-
-  function totalAmount() {
-    let result = 0
-    for (let perf of invoice.performances) {
-      result += amountFor(perf)
-    }
-    return result
-  }
-
-  function totalVolumeCredits() {
-    let result = 0
-    for (let perf of invoice.performances) {
-      result += volumeCreditsFor(perf)
-    }
-    return result
-  }
-
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`
-  for (let perf of invoice.performances) {
-    result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience }석)\n` // prettier-ignore
-  }
-
-  result += `총액: ${usd(totalAmount())}\n`
-  result += `적립 포인트: ${totalVolumeCredits()}점\n`
-  return result
 }
