@@ -6,22 +6,33 @@ type Invoice = {
 type Play = { name: string; type: string }
 type Plays = Record<string, Play>
 
+type PerformanceData = Performance & { play: Play }
+type Data = {
+  customer: string
+  performances: PerformanceData[]
+}
+
 export function statement(invoice: Invoice, plays: Plays) {
   const statementData: any = {}
   statementData.customer = invoice.customer
   statementData.performances = invoice.performances.map(enrichPerformance)
-  return renderPlainText(statementData, plays)
+  return renderPlainText(statementData)
 
   function enrichPerformance(performance: Performance) {
-    const result = Object.assign({}, performance)
+    const result = Object.assign({} as PerformanceData, performance)
+    result.play = playFor(result)
     return result
+  }
+
+  function playFor(performance: Performance) {
+    return plays[performance.playID]
   }
 }
 
-function renderPlainText(data: any, plays: Plays) {
+function renderPlainText(data: Data) {
   let result = `청구 내역 (고객명: ${data.customer})\n`
   for (let perf of data.performances) {
-    result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience }석)\n` // prettier-ignore
+    result += `  ${perf.play.name}: ${usd(amountFor(perf))} (${perf.audience }석)\n` // prettier-ignore
   }
 
   result += `총액: ${usd(totalAmount())}\n`
@@ -53,24 +64,20 @@ function renderPlainText(data: any, plays: Plays) {
     }).format(number / 100)
   }
 
-  function volumeCreditsFor(performance: Performance) {
+  function volumeCreditsFor(performance: PerformanceData) {
     let result = 0
     result += Math.max(performance.audience - 30, 0)
 
-    if ('comedy' === playFor(performance).type) {
+    if ('comedy' === performance.play.type) {
       result += Math.floor(performance.audience / 5)
     }
 
     return result
   }
 
-  function playFor(performance: Performance) {
-    return plays[performance.playID]
-  }
-
-  function amountFor(performance: Performance) {
+  function amountFor(performance: PerformanceData) {
     let result = 0
-    switch (playFor(performance).type) {
+    switch (performance.play.type) {
       case 'tragedy':
         result = 40000
         if (performance.audience > 30) {
@@ -87,7 +94,7 @@ function renderPlainText(data: any, plays: Plays) {
         break
 
       default:
-        throw new Error(`알 수 없는 장르: ${playFor(performance).type}`)
+        throw new Error(`알 수 없는 장르: ${performance.play.type}`)
     }
 
     return result
