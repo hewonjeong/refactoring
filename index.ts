@@ -9,8 +9,13 @@ type Plays = Record<string, Play>
 export function statement(invoice: Invoice, plays: Plays) {
   const statementData: any = {}
   statementData.customer = invoice.customer
-  statementData.performances = invoice.performances
+  statementData.performances = invoice.performances.map(enrichPerformance)
   return renderPlainText(statementData, plays)
+
+  function enrichPerformance(performance: Performance) {
+    const result = Object.assign({}, performance)
+    return result
+  }
 }
 
 function renderPlainText(data: any, plays: Plays) {
