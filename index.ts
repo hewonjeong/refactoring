@@ -8,7 +8,7 @@ type Invoice = {
 
 type Plays = Record<string, { name: string; type: string }>
 
-function statement(invoice: Invoice, plays: Plays) {
+export function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0
   let volumeCredits = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
@@ -50,7 +50,7 @@ function statement(invoice: Invoice, plays: Plays) {
     if ('comedy' === play.type) volumeCredits += Math.floor(perf.audience / 5)
 
     // 청구 내역을 출력한다.
-    result += `${play.name}: ${format(thisAmount / 100)} (${ perf.audience }석)\n}` // prettier-ignore
+    result += `  ${play.name}: ${format(thisAmount / 100)} (${ perf.audience }석)\n` // prettier-ignore
     totalAmount += thisAmount
   }
 
